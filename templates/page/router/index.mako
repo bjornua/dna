@@ -1,5 +1,7 @@
 <%inherit file="/main.mako" />
 <%
+from app.utils.numberformat import format_size
+
 bytes_downloaded = 525441434
 bytes_uploaded = 24222106
 
@@ -24,10 +26,10 @@ bytes_uploaded = format_size(bytes_uploaded)
 <p>
     <ul>
         <li>
-            <a href="${url_for("routing.open")}">Åben for internet routing</a>
+            <a href="${urlfor("routing.open")}">Åben for internet routing</a>
         </li>
         <li>
-            <a href="${url_for("routing.close")}">Luk for internet routing</a>
+            <a href="${urlfor("routing.close")}">Luk for internet routing</a>
         </li>
     </ul>
 </p>

@@ -18,7 +18,7 @@ class Application(object):
         try:
             local.request = Request(environ)
             local.response = Response()
-            local.session = Session(local.request.cookies.get("session"))
+            local.session = Session(local.request.cookies.get("session"), 600)
             try:
                 local.url_adapter = url_adapter = url_map.bind_to_environ(environ)
                 try:

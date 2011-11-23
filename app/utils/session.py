@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
 from app.utils.misc import db
+import app.utils.date as dateutils
+
 
 class InvalidCookieException(Exception):
     pass
 
 class Session(object):
-    def __init__(self, id):
-        self.id = id
+    def __init__(self, id_, expires):
+        self.id = id_
         self.is_init = False
-        self.changed = False
+        self.expires = expires
     
     def init(self):
         if self.is_init:
             return
         self.is_init = True
+
+        self.date = dateutils.now()
         if self.id != None:
             try:
                 self.load_session()
@@ -22,19 +26,30 @@ class Session(object):
                 pass
         self.new_session()
     
+    def get_doc(self, id_):
+        for result in db().view("session/by_id", key=id_, include_docs=True):
+            return result["doc"]
+
     def load_session(self):
-        try:
-            self.doc = list(db().view("session/by_id", key=self.id, include_docs=True))[0].doc
-        except IndexError:
+        doc = self.get_doc(self.id)
+
+        if doc is None:
+            raise InvalidCookieException()
+
+        # Expire time on session
+        if (dateutils.now() - dateutils.fromtuple(doc["date"])).total_seconds() > self.expires:
             raise InvalidCookieException()
         
+        doc["date"] = dateutils.totuple(self.date)
+        self.doc = doc
+        
     def new_session(self):
-        self.doc = {"type": "session", "data":{}}
+        self.doc = {"type": "session", "data":{}, "date": dateutils.totuple(self.date)}
     
     def save(self):
-        if not self.changed:
-            return
-        self.id, self.doc["_rev"] = db().save(self.doc)
+        if self.is_init:
+            db().save_doc(self.doc)
+            self.id = self.doc["_id"]
     
     def get(self, *args, **kwargs):
         self.init()
@@ -42,7 +57,6 @@ class Session(object):
     
     def __setitem__(self, *args, **kwargs):
         self.init()
-        self.changed = True
         return self.doc["data"].__setitem__(*args,**kwargs)
     
     def set_cookie(self, response):
