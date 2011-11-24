@@ -37,7 +37,7 @@ template_lookup = mako.lookup.TemplateLookup(
     input_encoding="utf-8",
     output_encoding="utf-8",
     strict_undefined=True,
-    module_directory='/tmp/mako_modules',
+    module_directory="/tmp/mako_modules",
 )
 
 
