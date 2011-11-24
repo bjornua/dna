@@ -5,6 +5,8 @@ _tooldesc = "Interactively generates the project config files."
 import os.path
 import sys
 import grp
+import app.config
+from pprint import pprint
 
 def user_query(itemname, converter, defaultrep, default=None):
     while True:
@@ -22,11 +24,7 @@ def user_query(itemname, converter, defaultrep, default=None):
         return answer
 
 def prompt_update_config():
-    try:
-        from app.config.generated import config
-    except ImportError:
-        from app.config.default import config
-        config = config()
+    config = app.config.get()
 
     for name, key, converter, repr_ in [
         ("CouchDB Server URL", "couchdb_server_url", str, str),
@@ -36,14 +34,12 @@ def prompt_update_config():
     return config
 
 def write_config(config):
-    filename = os.path.join("app", "config", "generated.py")
-    fhandle = open(filename, "w")
-    fhandle.write(
-        "# -*- coding: utf-8 -*-\n"
-      + "from app.config.default import config\n"
-      + "config = config()\n"
-      + "config.update(" + repr(config) + ")"
-    )
+    filename = os.path.join("app", "config", "user.py")
+    with open(filename, "w") as f:
+        print >> f, "# -*- coding: utf-8 -*-"
+        print >> f, "from app.config.default import config"
+        print >> f, "config = \\"
+        pprint(config, f, indent=4, width=1)
 
 def main():
     config = prompt_update_config()

@@ -11,7 +11,9 @@ import mako.lookup
 import couchdbkit
 
 import app.widget
-from app.config.generated import config
+import app.config
+
+config = app.config.get()
 
 path = {}
 path["static"] = "static"
