@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from app.utils.misc import template_response
 def error():
     template_response("/error/servererror.mako")

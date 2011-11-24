@@ -132,11 +132,12 @@ p,fieldset,table {
 
 #page h1, #page h2, #page h3, #page h4, #page h5, #page h6 {
     font-family: 'Droid Sans';
-}
-#page > h1, #page > h2, #page > h3, #page > h4, #page > h5, #page > h6, #page > p {
     margin:.3em 10px .3em 10px;
 }
-#page > table {
+#page h1, #page h2, #page h3, #page h4, #page h5, #page h6, #page p {
+    margin:.3em 10px .3em 10px;
+}
+#page table {
     margin:.3em 10px 1em 10px;
 }
 
@@ -147,4 +148,3 @@ p,fieldset,table {
     font-size:150%;
     letter-spacing:2px;
 }
-

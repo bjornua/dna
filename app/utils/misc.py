@@ -12,6 +12,8 @@ import couchdbkit
 
 import app.widget
 import app.config
+import pprint
+
 
 config = app.config.get()
 
@@ -66,3 +68,7 @@ def template_render(templatename, **kwargs):
 
 def redirect(endpoint, *args, **kwargs):
     local.response = werkzeug.utils.redirect(urlfor(endpoint, *args, **kwargs))
+
+def debug(*args, **kwargs):
+    local.response.headers["Content-Type"] = "text/plain; charset=UTF-8"
+    local.response.data = pprint.pformat(args) + "\n\n" + pprint.pformat(kwargs)

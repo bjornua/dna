@@ -1,2 +1,1 @@
-<%inherit file="/main.mako" />
-<h1>Ikke fundet</h1>
+Siden blev ikke fundet
