@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from app.utils.misc import template_response, local
+from app.utils.misc import template_response, local, authcheck
 
 import app.model.rus as rus
 

@@ -10,6 +10,9 @@ import app.controllers.netlogon
 
 endpoints = {
     "index": app.controllers.index.index,
+    "admin.login_form": app.controllers.index.login_form,
+    "admin.logout": app.controllers.index.logout,
+    "admin.login_do": app.controllers.index.login_do,
     "routing.index": app.controllers.router.index,
     "routing.close": app.controllers.error.notyet,
     "routing.open": app.controllers.error.notyet,
@@ -34,6 +37,9 @@ for method, path, endpoint in [
         ("GET", "/", "netlogon.login_form"),
         ("POST", "/", "netlogon.login_do"),
         ("GET", "/admin", "index"),
+        ("GET", "/admin/login", "admin.login_form"),
+        ("GET", "/admin/logout", "admin.logout"),
+        ("POST", "/admin/login", "admin.login_do"),
         ("GET", "/admin/routing", "routing.index"),
         ("GET", "/admin/routing/open", "routing.open"),
         ("GET", "/admin/routing/close", "routing.close"),

@@ -7,6 +7,10 @@ import sys
 import grp
 import app.config
 from pprint import pprint
+from hashlib import sha224
+
+def sha224conv(text):
+    return sha224(text).hexdigest()
 
 def user_query(itemname, converter, defaultrep, default=None):
     while True:
@@ -31,6 +35,7 @@ def prompt_update_config():
         ("CouchDB db", "couchdb_db", str, str),
         ("LAN interface", "interface_lan", str, str),
         ("WAN interface", "interface_wan", str, str),
+        ("Admin password (sha224 hex)", "adminpasswd", str, str),
     ]:
         config[key] = user_query(name, converter, repr_, config[key])
     return config

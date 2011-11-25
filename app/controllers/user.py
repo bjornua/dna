@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-from app.utils.misc import template_response, local, db, urlfor, redirect, debug
+from app.utils.misc import template_response, local, db, urlfor, redirect, debug, authcheck
 from app.controllers.error import notfound
 
 import app.model.user as user
 
-
 def list():
+    if not authcheck():
+        return
     users = ((
         doc["_id"],
         doc["username"],
@@ -17,6 +18,8 @@ def list():
     )
 
 def edit_form(uid):
+    if not authcheck():
+        return
     try:
         doc = user.get(uid)
     except user.UserDoesntExist:
@@ -39,6 +42,8 @@ def edit_form(uid):
     )
 
 def edit_do(uid):
+    if not authcheck():
+        return
     form = local.request.form
     username = form.get("username")
     email = form.get("email")
@@ -68,6 +73,8 @@ def edit_do(uid):
     redirect("user.list")
 
 def create_form():
+    if not authcheck():
+        return
     args = local.request.args
     
     errors = set(filter(len, args.get(u"errors", "").split(u",")))
@@ -85,6 +92,8 @@ def create_form():
     )
 
 def create_do():
+    if not authcheck():
+        return
     form = local.request.form
     username = form.get("username")
     email = form.get("email")
@@ -111,5 +120,7 @@ def create_do():
     redirect("user.list")
 
 def delete(uid):
+    if not authcheck():
+        return
     user.delete(uid)
     redirect("user.list")
