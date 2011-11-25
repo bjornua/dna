@@ -16,7 +16,7 @@ def iptables(args):
     with iptables_lock:
         run(["/usr/sbin/iptables"] + args)
 
-def reset_iptables(interface_lan, interface_wan):
+def reset(interface_lan, interface_wan):
     global iptables_lock
     with iptables_lock:
         # HACK: In case there are links (dependencies), run three times (one for each table)
@@ -65,5 +65,13 @@ def reset_iptables(interface_lan, interface_wan):
         iptables(["-A", "INPUT"  , "-j", "REJECT"])
         iptables(["-A", "FORWARD", "-j", "REJECT"])
 
+    # Enable packet forwarding if not already enabled
+    with open("/proc/sys/net/ipv4/ip_forward", "w") as f:
+        print >> f, 1
+
 def addmac(macaddr):
     iptables(["-t", "mangle", "-A", "maclist", "-m", "mac", "--mac-source", macaddr, "-j", "MARK", "--set-mark", "99"])
+
+def delmac(macaddr):
+    iptables(["-t", "mangle", "-D", "maclist", "-m", "mac", "--mac-source", macaddr, "-j", "MARK", "--set-mark", "99"])
+

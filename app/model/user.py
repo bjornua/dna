@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
-from app.utils.misc import db
+from app.utils.misc import db, local
 from random import choice
 from couchdbkit import ResourceNotFound
+
+
+import app.utils.iptables as iptables
+import app.utils.arp as arp
+import app.config
+
+config = app.config.get()
 
 class UserExist(Exception): pass
 class UserDoesntExist(Exception): pass
@@ -22,7 +29,28 @@ def get(uid):
 
 
 def authenticate(username, password):
-    for x in db().view("user/auth", key=[username, password]):
+    for x in db().view("user/auth", key=[username, password], include_docs=True):
+        doc = x["doc"]
+        break
+        
+    macs = doc["macaddrs"]
+    maxmacs = doc["macaddrs_max"]
+    
+    macaddr = "00:1e:64:7d:ed:78"
+
+    if macaddr != None:
+        macs.append(macaddr)
+
+        while len(macs) > maxmacs:
+            iptables.delmac(macs.pop(0))
+        
+        if len(macs) == 0:
+            return
+
+        iptables.addmac(macaddr)
+        
+        db().save_doc(doc)
+        
         return x["id"]
 
 
@@ -72,6 +100,11 @@ def delete(uid):
 def getid(username):
     for x in db().view("user/auth", startkey=[username, u""], endkey=[username, u"\ufff0"], limit=1):
         return x["id"]
+
+def getmacs():
+    for x in db().view("user/macaddr"):
+        yield x["key"][0]
+
 
 def getname(uid):
     return db()[uid]["username"]

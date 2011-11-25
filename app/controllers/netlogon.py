@@ -26,9 +26,4 @@ def login_do():
         redirect("netlogon.login_form", error="")
         return
 
-    macaddr = app.utils.arp.arping(config["interface_lan"], local.request.remote_addr)
-    
-    if macaddr != None:
-        app.utils.iptables.addmac(macaddr)
-
     local.response = werkzeug.utils.redirect("http://www.dikulan.dk/", 307)

@@ -8,9 +8,18 @@ from app.mapping import url_map, endpoints
 from app.utils.misc import local, path
 from app.utils.session import Session
 
+import app.config
+import app.model.user as user
+import app.utils.iptables as iptables
+
+config = app.config.get()
+
 class Application(object):
     def __init__(self, debug):
         local.application = self
+        iptables.reset(config["interface_lan"], config["interface_wan"])
+        for addr in user.getmacs():
+            iptables.addmac(addr)
         self.debug = debug
         self.dispatch = SharedDataMiddleware(self.dispatch, {"/static": path["static"]})
     
