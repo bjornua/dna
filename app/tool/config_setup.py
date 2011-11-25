@@ -29,6 +29,8 @@ def prompt_update_config():
     for name, key, converter, repr_ in [
         ("CouchDB Server URL", "couchdb_server_url", str, str),
         ("CouchDB db", "couchdb_db", str, str),
+        ("LAN interface", "interface_lan", str, str),
+        ("WAN interface", "interface_wan", str, str),
     ]:
         config[key] = user_query(name, converter, repr_, config[key])
     return config
