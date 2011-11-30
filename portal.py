@@ -4,9 +4,10 @@ import env
 import time
 import wsgiserver
 
-from app.application import Main, Redirecter
-from threading import Thread
+from app.wsgiapp import Main, Redirecter
+from app.collector import collect_mactraffic
 
+from threading import Thread
 
 webapp = Main(debug=False)
 redirecter = Redirecter(debug=False)
@@ -23,10 +24,12 @@ for target in (webapp, redirecter):
     t.daemon = True
     t.start()
 
+collect_mactraffic()
+
 try:
     while True:
-        time.sleep(999)
+        # Do nothing (10000 seconds)
+        time.sleep(10000)
 except KeyboardInterrupt:
     webapp.stop()
     redirecter.stop()
-

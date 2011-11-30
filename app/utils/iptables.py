@@ -20,6 +20,7 @@ def reset(interface_lan, interface_wan):
     global iptables_lock
     with iptables_lock:
         # HACK: In case there are links (dependencies), run three times (one for each table)
+        # DISCLAIMER: This is not not very considered, and might be an arbitrary thing to do
         for x in range(3):
             iptables(["-t", "filter", "-X"])
             iptables(["-t", "filter", "-F"])
