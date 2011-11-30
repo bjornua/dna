@@ -12,11 +12,12 @@ import app.config
 import app.model.user as user
 import app.utils.iptables as iptables
 import app.logger
+from app.utils.ip import getip
 
 logger = app.logger.get(__name__)
 config = app.config.get()
 
-class Application(object):
+class Main(object):
     def __init__(self, debug):
         local.application = self
         iptables.reset(config["interface_lan"], config["interface_wan"])
@@ -61,3 +62,12 @@ class Application(object):
     def __call__(self, environ, start_response):
         local.application = self
         return self.dispatch(environ, start_response)
+
+class Redirecter(object):
+    def __init__(self, debug):
+        self.debug = debug
+        self.lan_ip = getip(config["interface_lan"])
+
+    def __call__(self, env, start_r):
+            start_r('307 Temporary Redirect', [('Location', 'http://' + self.lan_ip + ":5000/")])
+            return []

@@ -1,38 +1,27 @@
 #!/usr/bin/python2
 # -*- coding: utf-8 -*-
-import app.config
 import env
 import time
 import wsgiserver
 
-from app.application import Application
-from app.utils.ip import getip
+from app.application import Main, Redirecter
 from threading import Thread
 
-config = app.config.get()
 
-webapp = Application(debug=False)
-lan_ip = getip(config["interface_lan"])
+webapp = Main(debug=False)
+redirecter = Redirecter(debug=False)
 
 bind_address = "0.0.0.0"
-redirecter_port = 4000
+redirecter_port = 80
 app_port = 5000
 
 webapp = wsgiserver.CherryPyWSGIServer((bind_address, app_port), webapp)
-def redirecter(env, start_r):
-        start_r('307 Temporary Redirect', [('Location', 'http://' + lan_ip + ":5000/")])
-        return []
-
 redirecter = wsgiserver.CherryPyWSGIServer((bind_address, redirecter_port), redirecter)
 
-twebapp = Thread(target=webapp.start)
-tredirecter = Thread(target=redirecter.start)
-
-twebapp.daemon = True
-tredirecter.daemon = True
-
-twebapp.start()
-tredirecter.start()
+for target in (webapp, redirecter):
+    t = Thread(target=target.start)
+    t.daemon = True
+    t.start()
 
 try:
     while True:
