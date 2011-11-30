@@ -29,15 +29,17 @@ def get(uid):
 
 
 def authenticate(username, password):
+    doc = None
     for x in db().view("user/auth", key=[username, password], include_docs=True):
         doc = x["doc"]
         break
+
+    if doc is None:
+        return
         
     macs = doc["macaddrs"]
     maxmacs = doc["macaddrs_max"]
     
-    macaddr = "00:1e:64:7d:ed:78"
-
     if macaddr != None:
         macs.append(macaddr)
 
