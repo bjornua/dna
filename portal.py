@@ -25,8 +25,14 @@ def redirecter(env, start_r):
 
 redirecter = wsgiserver.CherryPyWSGIServer((bind_address, redirecter_port), redirecter)
 
-Thread(target=webapp.start).start()
-Thread(target=redirecter.start).start()
+twebapp = Thread(target=webapp.start)
+tredirecter = Thread(target=redirecter.start)
+
+twebapp.daemon = True
+tredirecter.daemon = True
+
+twebapp.start()
+tredirecter.start()
 
 try:
     while True:

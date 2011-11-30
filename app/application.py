@@ -11,7 +11,9 @@ from app.utils.session import Session
 import app.config
 import app.model.user as user
 import app.utils.iptables as iptables
+import app.logger
 
+logger = app.logger.get(__name__)
 config = app.config.get()
 
 class Application(object):
@@ -21,35 +23,41 @@ class Application(object):
         for addr in user.getmacs():
             iptables.addmac(addr)
         self.debug = debug
-        self.dispatch = SharedDataMiddleware(self.dispatch, {"/static": path["static"]})
+        self.dispatch = SharedDataMiddleware(self.safedispatch, {"/static": path["static"]})
     
-    def dispatch(self, environ, start_response):
+    def safedispatch(self, environ, start_response):
         try:
-            local.request = Request(environ)
-            local.response = Response()
-            local.session = Session(local.request.cookies.get("session"), 600)
-            try:
-                local.url_adapter = url_adapter = url_map.bind_to_environ(environ)
-                try:
-                    endpoint, params = url_adapter.match()
-                except NotFound:
-                    endpoint = "notfound"
-                    params = {}
-                local.endpoint = endpoint
-                endpoints[endpoint](**params)
-            except:
-                if self.debug:
-                    raise
-                endpoints["error"]()
-            response = local.response
-            local.session.save()
-            local.session.set_cookie(local.response)
+            return self.appdispatch(environ, start_response)
         except: 
             if self.debug:
                 raise
-            response = Response("Fejlsidens fejlside.")
+            logger.exception("Exception")
+            return Response("Fejlsidens fejlside.")(environ, start_response)
+
+    def appdispatch(self, environ, start_response):
+        local.request = Request(environ)
+        local.response = Response()
+        local.session = Session(local.request.cookies.get("session"), 600)
+        try:
+            local.url_adapter = url_adapter = url_map.bind_to_environ(environ)
+            try:
+                endpoint, params = url_adapter.match()
+            except NotFound:
+                endpoint = "notfound"
+                params = {}
+            local.endpoint = endpoint
+            endpoints[endpoint](**params)
+        except:
+            if self.debug:
+                raise
+            else:
+                logger.exception("Exception")
+                endpoints["error"]()
+        response = local.response
+        local.session.save()
+        local.session.set_cookie(local.response)
             
-        return response(environ, start_response)        
+        return response(environ, start_response)
     def __call__(self, environ, start_response):
         local.application = self
         return self.dispatch(environ, start_response)
